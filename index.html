@@ -7,6 +7,8 @@
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
     // once everything is loaded, we run our Three.js stuff.
+    var output;
+    var controlBox;
     var debugKeys = false;
     var plane,cube,sphere,scene,camera,renderer;
     var keys = [];
@@ -21,6 +23,8 @@
         "KEY_R":82
     }
     $(function () {
+        output = $("#WebGL-output");
+        controlBox = $("#controls");
         var updateLoop = setInterval(update,1);
         // here we'll put the Three.js stuff
         scene = new THREE.Scene();
@@ -35,15 +39,15 @@
         var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
         plane = new THREE.Mesh(planeGeometry,planeMaterial);
         plane.rotation.x=-0.5*Math.PI;
-        plane.position.x = 15;
+        plane.position.x = 0;
         plane.position.y = 0;
         plane.position.z = 0;
         scene.add(plane);
         var cubeGeometry = new THREE.CubeGeometry(4,4,4);
         var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
         cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        cube.position.x = -4;
-        cube.position.y = 3;
+        cube.position.x = 0;
+        cube.position.y = 10;
         cube.position.z = 0;
         scene.add(cube);
         var sphereGeometry = new THREE.SphereGeometry(4,20,20);
@@ -51,15 +55,15 @@
         sphere = new THREE.Mesh(sphereGeometry,sphereMaterial);
         sphere.position.x = 20;
         sphere.position.y = 4;
-        sphere.position.z = 2;
+        sphere.position.z = 0;
         scene.add(sphere);
-        camera.position.x = 0;
-        camera.position.y = 5;
+        camera.position.x = 11;
+        camera.position.y = 9;
         camera.position.z = 30;
-        camera.lookAt(scene.position);
+        //camera.lookAt(scene.position);
         displayCameraPosition(camera.position);
         displayCameraRotation(camera.rotation);
-        $("#WebGL-output").append(renderer.domElement);
+        output.append(renderer.domElement);
         renderer.render(scene, camera);
 
         $(window).on('keydown',function(e){
@@ -91,10 +95,7 @@
                     addSphere();
                 }
                 if(key == KEY_CODES.KEY_R){
-                    camera.rotation.x = 0;
-                    camera.rotation.y = 0;
-                    camera.rotation.z = 0;
-                    displayCameraRotation(camera.rotation);
+                    setAngles(0,0,0);
                 }
             }
             render();
@@ -110,49 +111,66 @@
         var held;
         var startPos;
         var lastPos;
-        $(window).mousedown(function(e) {
+        $(output).mousedown(function(e) {
             held = true;
+            output.addClass('moving');
             lastPos = Array(e.offsetX, e.offsetY);
         }).bind('mouseup mouseleave', function() {
             held = false;
         });
-        $(window).on('mousemove',function(e){
+        $(output).on('mousemove',function(e){
 
             if(held){
+                
+                //rotate
                 if(keys.indexOf(KEY_CODES.ALT) != -1){
                     startPos = Array(e.offsetX, e.offsetY);
                     var yAmt = (lastPos[0] - startPos[0]) / 500;
                     var xAmt = (lastPos[1] - startPos[1]) / 500;
                     camera.rotateY(yAmt);
                     camera.rotateX(xAmt);
-
+                    //camera.rotation.z = camera.rotation.x;
                     //console.log(camera.rotation);
                     lastPos = startPos;
                     displayCameraRotation(camera.rotation);
                 }
-                else {
-
+                else {//pan
+                    
                     startPos = Array(e.offsetX, e.offsetY);
                     var xPos = (lastPos[0] - startPos[0]) / 50;
                     var yPos = (lastPos[1] - startPos[1]) / 50;
                     //var position = THREE.Vector3(xPos,yPos,camera.position.z);
-                    camera.position.x += xPos;
-                    camera.position.y -= yPos;
+                    //console.log(xPos*(1-(camera.rotation.y/Math.PI)));
+                    //camera.position.x += xPos*(Math.PI-(camera.rotation.y/Math.PI));
+                    //camera.position.z += xPos*(Math.PI-(camera.position.y/Math.PI));
+                    //camera.position.y -= yPos*(Math.-(camera.rotation.y/Math.PI));
+                    camera.translateX(xPos);
+                    camera.translateY(-yPos)
                     lastPos = startPos;
                     displayCameraPosition(camera.position);
                 }
                 render();
             }
+            else{
+                output.removeClass('moving');
+            }
         });
-        $(window).on('mousewheel',function(e){
-            //console.log(e.originalEvent.wheelDelta/120);
+        var cursorTimeout;
+        $(output).on('mousewheel',function(e){
             var scrollAmt = (e.originalEvent.wheelDelta/120)/5;
-            var frac = scrollAmt/2*Math.PI;
-            camera.position.z -= scrollAmt;
+            if(scrollAmt>0){
+                output.addClass('zoomin');
+                output.removeClass('zoomout');
+            }  
+            else{
+                    output.addClass('zoomout');
+                    output.removeClass('zoomin');
+            }
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(function(){output.removeClass('zoomin');output.removeClass('zoomout');},500);
+            camera.translateZ(-scrollAmt);
             displayCameraPosition(camera.position);
-            //camera.position.x += scrollAmt;
-            //console.log(Rads2Degs(camera.rotation.x),Rads2Degs(camera.rotation.y),Rads2Degs(camera.rotation.z));
-//				if(camera.zoom < 0) camera.zoom = 0;
+//			if(camera.zoom < 0) camera.zoom = 0;
 //				camera.updateProjectionMatrix();
             render();
         });
@@ -160,11 +178,27 @@
         $("#debugKeys").change(function(e){
             debugKeys = e.originalEvent.srcElement.checked;
         });
+        var controlsMove;
+        $(controlBox.find("h2")).mousedown(function(e){
+            controlsMove = true;
+            console.log("clicked");
+        }).bind('mouseup', function() {
+            controlsMove = false;
+        });
+        $(controlBox).on('mouseleave',function(){
+            controlsMove = false;
+        });
+        $(controlBox).on('mousemove',function(e){
+            if(controlsMove){
+                $(controlBox).css('left',e.clientX-150);
+                $(controlBox).css('top',e.clientY-50);
+            }
+        });
     });
     function displayCameraRotation(cameraRotation){
-        $("#cameraRotX").html(cameraRotation.x);
-        $("#cameraRotY").html(cameraRotation.y);
-        $("#cameraRotZ").html(cameraRotation.z);
+        $("#cameraRotX").html(Rads2Degs(cameraRotation.x));
+        $("#cameraRotY").html(Rads2Degs(cameraRotation.y));
+        $("#cameraRotZ").html(Rads2Degs(cameraRotation.z));
     }
     function displayCameraPosition(cameraPosition){
         $("#cameraPosX").html(cameraPosition.x);
@@ -174,9 +208,32 @@
     function Rads2Degs(radians){
         return (radians*180)/Math.PI;
     }
+    function resetAngles(){
+        var x = +!$("#x0").is(':checked');
+        var y = +!$("#y0").is(':checked');
+        var z = +!$("#z0").is(':checked');
+        var r = camera.rotation;
+        camera.rotation.x = r.x*x;
+        camera.rotation.y = r.y*y;
+        camera.rotation.z = r.z*z;
+        displayCameraRotation(camera.rotation);
+        render();
+    }
+    function setAngles(x,y,z){
+        camera.rotation.x = 0;
+        camera.rotation.y = 0;
+        camera.rotation.z = 0;
+        displayCameraRotation(camera.rotation);
+        render();
+    }
     function update(){
-        //console.dir(keys);
-        //keys = [];
+        //render();
+        if(keys.indexOf(KEY_CODES.ALT) != -1){
+            output.addClass('grab');
+        }
+        else output.removeClass('grab');
+        spinObj(sphere,'y',-0.001);
+        //spinObj(cube,'y',0.001);
     }
     function render(){
         renderer.render(scene,camera);
@@ -189,6 +246,16 @@
         //sphere.RotateX(0.5);
         scene.add(sphere);
     }
+    function spinObj(obj,axis,amt){
+        if(axis.toUpperCase()=='X')
+            obj.rotateX(amt);
+        else if(axis.toUpperCase()=='Y')
+            obj.rotateY(amt);
+        else if(axis.toUpperCase()=='Z'){
+            obj.rotateZ(amt);
+        }
+        render();
+    }    
     </script>
 	<style>
         *{
@@ -204,8 +271,20 @@
 		#WebGL-output{
             position: absolute;
             z-index: 1;
-            cursor: default;
+            cursor: -webkit-grab;
 		}
+        .moving{
+            cursor: -webkit-grabbing !important;
+        }
+        .zoomin{
+            cursor: zoom-in !important;
+        }
+        .zoomout{
+            cursor: zoom-out !important;
+        }
+        .grab{
+            cursor: move !important;
+        }
         #controls{
             position: absolute;
             z-index: 2;
@@ -214,15 +293,20 @@
             margin: 15px;
             padding: 15px;
             padding-top: 0;
-            width: 300px;
+            width: 240px;
             text-align:  left;
+            cursor: default;
         }
-        #controls h4{
+        #controls h5{
             margin: 0;
         }
         #controls h2{
             margin: 0;
+            margin-top: 10px;
             text-align: center;
+        }
+        #controls details summary{
+            cursor: pointer;
         }
 	</style>
 </head>
@@ -230,14 +314,18 @@
 <!-- canvas which will hold the Output -->
 <div id="WebGL-output">
 </div>
-<div id="controls"><h2>Controls</h2>
-    <fieldset><legend>Debug</legend>
+<div id="controls"><h2>Info</h2>
+    <details><summary>Debugger</summary>
+    <fieldset><legend></legend>
         <input id="debugKeys" type="checkbox" /><label for="debugKeys"> KEYS</label>
         <br>
+        <label for="x0">x:</label><input id="x0" type="checkbox" /><label for="y0"> y:</label><input id="y0" type="checkbox" /><label for="z0"> z:</label><input id="z0" type="checkbox" /> <input type="button" value="reset" onClick="resetAngles();" />
 <!--        <input id="debugCamera" type="checkbox" /><label for="debugKeys"> CAMERA POSITION</label>-->
     </fieldset>
+    </details>
+    <details open><summary>Camera</summary>
     <fieldset>
-        <legend>Camera</legend>
+        <legend></legend>
         <h5>Postion</h5>
         <label for="cameraPosX">X: </label><span id="cameraPosX"></span>
         <br>
@@ -251,6 +339,16 @@
         <br>
         <label for="cameraRotZ">Z: </label><span id="cameraRotZ"></span>
     </fieldset>
+    </details>
+    <details><summary>Controls</summary>
+        <fieldset>
+            <div><strong>A:</strong> add green sphere</div>
+            <div><strong>R:</strong> reset camera angles to 0</div>
+            <div><strong>ALT+click+hold+drag:</strong> rotate camera</div>
+            <div><strong>click+hold+drag:</strong> pan around scene</div>
+            <div><strong>mousewheel:</strong> zoom in and out</div>
+        </fieldset>
+    </details>
 </div>
 </body>
 </html>
