@@ -7,7 +7,7 @@
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
     // once everything is loaded, we run our Three.js stuff.
-    var displayKeys = false;
+    var debugKeys = false;
     var plane,cube,sphere,scene,camera,renderer;
     var keys = [];
     var KEY_CODES = {
@@ -56,14 +56,15 @@
         camera.position.x = 0;
         camera.position.y = 5;
         camera.position.z = 30;
-
         camera.lookAt(scene.position);
+        displayCameraPosition(camera.position);
+        displayCameraRotation(camera.rotation);
         $("#WebGL-output").append(renderer.domElement);
         renderer.render(scene, camera);
 
         $(window).on('keydown',function(e){
             var key = e.which;
-            if(displayKeys)console.log(key);
+            if(debugKeys)console.log(key);
             if($.inArray(key,keys) == -1) {
 
                 if (key == KEY_CODES.CTRL) {
@@ -93,6 +94,7 @@
                     camera.rotation.x = 0;
                     camera.rotation.y = 0;
                     camera.rotation.z = 0;
+                    displayCameraRotation(camera.rotation);
                 }
             }
             render();
@@ -126,6 +128,7 @@
 
                     //console.log(camera.rotation);
                     lastPos = startPos;
+                    displayCameraRotation(camera.rotation);
                 }
                 else {
 
@@ -135,8 +138,8 @@
                     //var position = THREE.Vector3(xPos,yPos,camera.position.z);
                     camera.position.x += xPos;
                     camera.position.y -= yPos;
-
                     lastPos = startPos;
+                    displayCameraPosition(camera.position);
                 }
                 render();
             }
@@ -146,17 +149,28 @@
             var scrollAmt = (e.originalEvent.wheelDelta/120)/5;
             var frac = scrollAmt/2*Math.PI;
             camera.position.z -= scrollAmt;
+            displayCameraPosition(camera.position);
             //camera.position.x += scrollAmt;
-            console.log(Rads2Degs(camera.rotation.x),Rads2Degs(camera.rotation.y),Rads2Degs(camera.rotation.z));
+            //console.log(Rads2Degs(camera.rotation.x),Rads2Degs(camera.rotation.y),Rads2Degs(camera.rotation.z));
 //				if(camera.zoom < 0) camera.zoom = 0;
 //				camera.updateProjectionMatrix();
             render();
         });
         
         $("#debugKeys").change(function(e){
-            alert("change");
+            debugKeys = e.originalEvent.srcElement.checked;
         });
     });
+    function displayCameraRotation(cameraRotation){
+        $("#cameraRotX").html(cameraRotation.x);
+        $("#cameraRotY").html(cameraRotation.y);
+        $("#cameraRotZ").html(cameraRotation.z);
+    }
+    function displayCameraPosition(cameraPosition){
+        $("#cameraPosX").html(cameraPosition.x);
+        $("#cameraPosY").html(cameraPosition.y);
+        $("#cameraPosZ").html(cameraPosition.z);
+    }
     function Rads2Degs(radians){
         return (radians*180)/Math.PI;
     }
@@ -177,6 +191,9 @@
     }
     </script>
 	<style>
+        *{
+            -webkit-user-select: none;
+        }
 		body{
 			/* set margin to 0 and overflow to hidden,
 			to use the complete page */
@@ -187,6 +204,7 @@
 		#WebGL-output{
             position: absolute;
             z-index: 1;
+            cursor: default;
 		}
         #controls{
             position: absolute;
@@ -199,14 +217,40 @@
             width: 300px;
             text-align:  left;
         }
+        #controls h4{
+            margin: 0;
+        }
+        #controls h2{
+            margin: 0;
+            text-align: center;
+        }
 	</style>
 </head>
 <body>
 <!-- canvas which will hold the Output -->
 <div id="WebGL-output">
 </div>
-<div id="controls"><h4>controls</h4>
-    <label for="debugKeys">KEYS: </label><input id="debugKeys" type="checkbox" />
+<div id="controls"><h2>Controls</h2>
+    <fieldset><legend>Debug</legend>
+        <input id="debugKeys" type="checkbox" /><label for="debugKeys"> KEYS</label>
+        <br>
+<!--        <input id="debugCamera" type="checkbox" /><label for="debugKeys"> CAMERA POSITION</label>-->
+    </fieldset>
+    <fieldset>
+        <legend>Camera</legend>
+        <h5>Postion</h5>
+        <label for="cameraPosX">X: </label><span id="cameraPosX"></span>
+        <br>
+        <label for="cameraPosY">Y: </label><span id="cameraPosY"></span>
+        <br>
+        <label for="cameraPosZ">Z: </label><span id="cameraPosZ"></span>
+        <h5>Rotation</h5>
+        <label for="cameraRotX">X: </label><span id="cameraRotX"></span>
+        <br>
+        <label for="cameraRotY">Y: </label><span id="cameraRotY"></span>
+        <br>
+        <label for="cameraRotZ">Z: </label><span id="cameraRotZ"></span>
+    </fieldset>
 </div>
 </body>
 </html>
