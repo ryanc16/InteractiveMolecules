@@ -1,0 +1,51 @@
+/* Chemistry CSS styles */
+*{
+            -webkit-user-select: none;
+        }
+		body{
+			/* set margin to 0 and overflow to hidden,
+			to use the complete page */
+			margin: 0;
+			overflow: hidden;
+            font-family: sans-serif;
+		}
+		#output{
+            position: absolute;
+            z-index: 1;
+            cursor: -webkit-grab;
+		}
+        .moving{
+            cursor: -webkit-grabbing !important;
+        }
+        .zoomin{
+            cursor: zoom-in !important;
+        }
+        .zoomout{
+            cursor: zoom-out !important;
+        }
+        .grab{
+            cursor: move !important;
+        }
+        #controls{
+            position: absolute;
+            z-index: 2;
+            color: whitesmoke;
+            background-color: rgba(0,0,0,0.2);
+            margin: 15px;
+            padding: 15px;
+            padding-top: 0;
+            width: 240px;
+            text-align:  left;
+            cursor: default;
+        }
+        #controls h5{
+            margin: 0;
+        }
+        #controls h2{
+            margin: 0;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #controls details summary{
+            cursor: pointer;
+        }
