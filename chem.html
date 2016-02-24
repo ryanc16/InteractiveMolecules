@@ -32,17 +32,17 @@
         <br>
         <label for="cameraRotZ">Z: </label><span id="cameraRotZ"></span>
     </fieldset>
-    </details>
+    </details><!--
     <details><summary>Create</summary>
         <fieldset>
             <select id="objSelection">
-                <option value="0">Sphere</option>
-                <option value="1">Cube</option>
+                <option value="0">Carbon</option>
+                <option value="1">Nitrogen</option>
             </select>
-            <input id="objColor" type="color" />
+            <!--<input id="objColor" type="color" />
             <button id="btnMakeObj">Make</button>
         </fieldset>
-    </details>
+    </details> -->
     <details><summary>Controls</summary>
         <fieldset>
             <div><strong>A:</strong> add green sphere</div>
@@ -53,7 +53,8 @@
         </fieldset>
     </details>
 </div>
-    <script type="text/javascript" src="js/three.js"></script>
+<script type="text/javascript" src="js/three/three.js"></script>
+<script type="text/javascript" src="js/threex/dynamictexture.js"></script>
 <script type="text/javascript" src="js/jquery2.2.0.min.js"></script>
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
@@ -63,6 +64,7 @@
     var debugKeys = false;
     var plane,cube,sphere,scene,camera,renderer;
     var keys = [];
+    var molecule = [];
     var KEY_CODES = {
         "CTRL":17,
         "ALT":18,
@@ -72,13 +74,31 @@
         "ARROW_DOWN":40,
         "KEY_A":65,
         "KEY_R":82
-    }
+    };
     var OBJECTS = {
         "SPHERE":0,
         "CUBE":1
-    }
+    };
+    var ATOMS = {
+        "HYDROGEN": {"number":1,    "radius":1.0000000000000, "color":'#E5E5E5',  "shortName":'H',    "textColor":'#333333'},
+        "CARBON":   {"number":6,    "radius":2.4516129032258, "color":'#555555',  "shortName":'C',    "textColor":'#E5E5E5'},
+        "NITROGEN": {"number":7,    "radius":2.2903225806452, "color":'#5533AA',  "shortName":'N',    "textColor":'#E5E5E5'},
+        "OXYGEN":   {"number":8,    "radius":2.1290322580645, "color":'#CC3333',  "shortName":'O',    "textColor":'#E5E5E5'},
+        "SODIUM":   {"number":11,   "radius":5.3548387096774, "color":'#AA33AA',  "shortName":'Na',   "textColor":'#E5E5E5'},
+        "POTASSIUM":{"number":19,   "radius":6.5483870967742, "color":'#AABB33',  "shortName":'K',    "textColor":'#333333'},
+        "CALCIUM":  {"number":20,   "radius":5.6774193548387, "color":'#33BB33',  "shortName":'Ca',   "textColor":'#333333'}
+    };
+    var ATOMS_ARRAY = [
+        ATOMS.HYDROGEN,
+        ATOMS.CARBON,
+        ATOMS.NITROGEN,
+        ATOMS.OXYGEN,
+        ATOMS.SODIUM,
+        ATOMS.POTASSIUM,
+        ATOMS.CALCIUM
+    ];
     $(function () {
-        var updateLoop = setInterval(update,1);
+        //var updateLoop = setInterval(update,1);
         // here we'll put the Three.js stuff
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -88,35 +108,68 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         
         var light = new THREE.DirectionalLight( 0xffffff );
-        light.position.set( 0, 1, 1 ).normalize();
+        light.position.set( 0, 0, 1 ).normalize();
         scene.add(light);
+        
+        var light2 = new THREE.DirectionalLight( 0xffffff );
+        light2.position.set( 0, 0, -1 ).normalize();
+        scene.add(light2);
+        
+        var light3 = new THREE.DirectionalLight( 0xffffff );
+        light3.position.set( 1, 0, 0 ).normalize();
+        scene.add(light3);
+        
+        var light4 = new THREE.DirectionalLight( 0xffffff );
+        light4.position.set( -1, 0, 0 ).normalize();
+        scene.add(light4);
+        
+        var light5 = new THREE.DirectionalLight( 0xffffff );
+        light5.position.set( 0, 1, 0 ).normalize();
+        scene.add(light5);
+        
+        var light6 = new THREE.DirectionalLight( 0xffffff );
+        light6.position.set( 0, -1, 0 ).normalize();
+        scene.add(light6);
         
         var axes = new THREE.AxisHelper(5);
         scene.add(axes);
-        plane = new CreatePlane(60,20,1,1,'#33AACC','grasslight-thin.jpg');
-        plane.rotation.x=-0.5*Math.PI;
-        plane.position.x = 0;
-        plane.position.y = 0;
-        plane.position.z = 0;
-        scene.add(plane);
+//        plane = new CreatePlane(60,20,1,1,'#000000','images/grasslight-thin.jpg');
+//        plane.rotation.x=-0.5*Math.PI;
+//        plane.position.x = 0;
+//        plane.position.y = 0;
+//        plane.position.z = 0;
+//        scene.add(plane);
         
-        var cubeGeometry = new THREE.CubeGeometry(4,4,4);
-        var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000,wireframe:true});
-        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        cube.position.x = 0;
-        cube.position.y = 10;
-        cube.position.z = 0;
-        scene.add(cube);
-        var sphereGeometry = new THREE.SphereGeometry(4,20,20);
-        var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
-        sphere = new THREE.Mesh(sphereGeometry,sphereMaterial);
-        sphere.position.x = 20;
-        sphere.position.y = 4;
-        sphere.position.z = 0;
-        scene.add(sphere);
-        camera.position.x = 11;
-        camera.position.y = 9;
-        camera.position.z = 30;
+//        var cubeGeometry = new THREE.CubeGeometry(4,4,4);
+//        var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000,wireframe:true});
+//        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+//        cube.position.x = 0;
+//        cube.position.y = 10;
+//        cube.position.z = 0;
+//        scene.add(cube);
+//        var sphereGeometry = new THREE.SphereGeometry(4,20,20);
+//        var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
+//        sphere = new THREE.Mesh(sphereGeometry,sphereMaterial);
+//        sphere.position.x = 20;
+//        sphere.position.y = 4;
+//        sphere.position.z = 0;
+//        scene.add(sphere);
+        var distance = 0;
+        for(var i=0;i<ATOMS_ARRAY.length;i++){
+        atom = CreateAtom(ATOMS_ARRAY[i]);
+        atom.position.set(distance+(2*ATOMS_ARRAY[i].radius),Math.random()*20,Math.random()*20);
+        distance += 2*ATOMS_ARRAY[i].radius+1;
+        molecule.push(atom);
+        scene.add(atom);
+        }
+        BondAtoms(molecule[0],molecule[1],1);
+        BondAtoms(molecule[2],molecule[5],1);
+        BondAtoms(molecule[1],molecule[4],1);
+        BondAtoms(molecule[0],molecule[2],1);
+        //camera
+        camera.position.x = 42;
+        camera.position.y = 14;
+        camera.position.z = 90;
         //camera.lookAt(scene.position);
         displayCameraPosition(camera.position);
         displayCameraRotation(camera.rotation);
@@ -209,7 +262,7 @@
         });
         var cursorTimeout;
         $(output).on('mousewheel',function(e){
-            var scrollAmt = (e.originalEvent.wheelDelta/120)/5;
+            var scrollAmt = (e.originalEvent.wheelDelta/120);
             if(scrollAmt>0){
                 output.addClass('zoomin');
                 output.removeClass('zoomout');
@@ -273,11 +326,54 @@
     //HELPER FUNCTIONS
     function CreatePlane(width,height,widthSegs,heightSegs,color,image){
         var planeGeometry = new THREE.PlaneGeometry(width,height,widthSegs,heightSegs);
-        if(material == null)
-            var planeMaterial = new THREE.MeshBasicMaterial({color: color});
-        else
-            var planeMaterail = new THREE.MeshBasicMaterial({color: color, map:THREE.ImageUtils.loadTexture(image)})
+        var planeMaterial;
+        //if(image != null){
+            // instantiate a loader
+            var loader = new THREE.TextureLoader();
+
+            // load a resource
+            loader.load(
+                // resource URL
+                image,
+                // Function when resource is loaded
+                function ( texture ) {
+                    // do something with the texture
+                    planeMaterial = new THREE.MeshBasicMaterial( {map: texture} );
+                },
+                // Function called when download progresses
+                function ( xhr ) {
+                    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+                },
+                // Function called when download errors
+                function ( xhr ) {
+                    console.log( 'An error loading texture occured.' );
+                }
+            );
+        //}
+        //else
+        //    planeMaterial = new THREE.MeshBasicMaterial({color: color});
         return new THREE.Mesh(planeGeometry,planeMaterial);
+    }
+    function CreateAtom(atomEnum){
+        var dynamicTexture = new THREEx.DynamicTexture(512,512);
+        dynamicTexture.context.font	= "90px Verdana";
+        dynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+        dynamicTexture.clear(atomEnum.color);
+        dynamicTexture.drawText(atomEnum.shortName, 96, 256, atomEnum.textColor);
+        
+        //var sphereGeometry = new THREE.SphereGeometry(atomEnum.radius,20,20);
+        var sphereGeometry = new THREE.SphereGeometry(atomEnum.radius,20,20);
+        var sphereMaterial = new THREE.MeshLambertMaterial({map:dynamicTexture.texture});
+        
+        return new THREE.Mesh(sphereGeometry,sphereMaterial);
+    }
+    function BondAtoms(atom1,atom2,numberOfBonds){
+        var geometry = new THREE.Geometry();
+        geometry.vertices.push(atom1.position );
+        geometry.vertices.push(atom2.position);
+        var line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color:'#ffffff'}));
+        scene.add(line);
+        //render();
     }
     function displayCameraRotation(cameraRotation){
         $("#cameraRotX").html(Rads2Degs(cameraRotation.x));
