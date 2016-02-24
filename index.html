@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>WebGL</title>
-<script type="text/javascript" src="js/three.js"></script>
+<script type="text/javascript" src="js/three/three.js"></script>
 <script type="text/javascript" src="js/jquery2.2.0.min.js"></script>
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
@@ -203,7 +203,6 @@
                 obj.position.x = Math.random()*20;
                 obj.position.y = Math.random()*4;
                 obj.position.z = Math.random()*20;
-                
             }
             else if(objID == OBJECTS.CUBE){
                 var cubeGeometry = new THREE.CubeGeometry(Math.random()*10,Math.random()*10,Math.random()*10);
