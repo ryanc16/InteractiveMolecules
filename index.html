@@ -6,7 +6,7 @@
 <script type="text/javascript" src="js/jquery2.2.0.min.js"></script>
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
-    var redirect = true;
+    var redirect = false;
     if(redirect)
         window.location.href = 'chem.html';
     // once everything is loaded, we run our Three.js stuff.
@@ -120,11 +120,11 @@
         var lastPos;
         $(output).mousedown(function(e) {
             held = true;
-            output.addClass('moving');
+            output.addClass('grab');
             lastPos = Array(e.offsetX, e.offsetY);
         }).bind('mouseup mouseleave', function() {
             held = false;
-            output.removeClass('moving');
+            output.removeClass('grab');
         });
         $(output).on('mousemove',function(e){
 
@@ -153,7 +153,7 @@
                 render();
             }
             else{
-                output.removeClass('moving');
+                output.removeClass('grab');
             }
         });
         var cursorTimeout;
@@ -253,9 +253,9 @@
     function update(){
         //render();
         if(keys.indexOf(KEY_CODES.ALT) != -1){
-            output.addClass('grab');
+            output.addClass('moving');
         }
-        else output.removeClass('grab');
+        else output.removeClass('moving');
         spinObj(sphere,'y',-0.001);
         //spinObj(cube,'y',0.001);
     }
@@ -297,7 +297,7 @@
             z-index: 1;
             cursor: -webkit-grab;
 		}
-        .moving{
+        .grab{
             cursor: -webkit-grabbing !important;
         }
         .zoomin{
@@ -306,7 +306,7 @@
         .zoomout{
             cursor: zoom-out !important;
         }
-        .grab{
+        .moving{
             cursor: move !important;
         }
         #controls{

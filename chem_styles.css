@@ -1,51 +1,109 @@
 /* Chemistry CSS styles */
 *{
-            -webkit-user-select: none;
-        }
-		body{
-			/* set margin to 0 and overflow to hidden,
-			to use the complete page */
-			margin: 0;
-			overflow: hidden;
-            font-family: sans-serif;
-		}
-		#output{
-            position: absolute;
-            z-index: 1;
-            cursor: -webkit-grab;
-		}
-        .moving{
-            cursor: -webkit-grabbing !important;
-        }
-        .zoomin{
-            cursor: zoom-in !important;
-        }
-        .zoomout{
-            cursor: zoom-out !important;
-        }
-        .grab{
-            cursor: move !important;
-        }
-        #controls{
-            position: absolute;
-            z-index: 2;
-            color: whitesmoke;
-            background-color: rgba(0,0,0,0.2);
-            margin: 15px;
-            padding: 15px;
-            padding-top: 0;
-            width: 240px;
-            text-align:  left;
-            cursor: default;
-        }
-        #controls h5{
-            margin: 0;
-        }
-        #controls h2{
-            margin: 0;
-            margin-top: 10px;
-            text-align: center;
-        }
-        #controls details summary{
-            cursor: pointer;
-        }
+    -webkit-user-select: none;
+}
+body{
+    /* set margin to 0 and overflow to hidden,
+    to use the complete page */
+    margin: 0;
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: #333;
+}
+#output{
+    position: absolute;
+    z-index: 1;
+    cursor: -webkit-grab;
+}
+.grab{
+    cursor: -webkit-grabbing !important;
+}
+.zoomin{
+    cursor: zoom-in !important;
+}
+.zoomout{
+    cursor: zoom-out !important;
+}
+.moving{
+    cursor: move !important;
+}
+.info{
+    cursor: help !important;
+}
+#controls{
+    position: absolute;
+    z-index: 2;
+    color: whitesmoke;
+    background-color: rgba(0,0,0,0.2);
+    margin: 15px;
+    padding: 15px;
+    padding-top: 0;
+    width: 240px;
+    text-align:  left;
+    cursor: default;
+    border: solid 1px whitesmoke;
+}
+#controls a{
+    color: cadetblue;
+}
+#controls h5{
+    margin: 0;
+}
+#controls h2{
+    margin: 0;
+    margin-top: 10px;
+    text-align: center;
+}
+#controls details summary{
+    cursor: pointer;
+}
+#controls label[for=orbitX]{
+    color: red;
+}
+#controls label[for=orbitY]{
+    color: green;
+}
+#controls label[for=orbitZ]{
+    color: blue;
+}
+#controls span.dispOrbit{
+    margin-top: 0;
+    padding-top: 0;
+    margin-left: 5px;
+    display: inline-block;
+}
+.menuopen{
+    position: absolute;
+    left: 280px;
+    -webkit-transition: all 1s;
+}
+.menuclosed{
+    position: absolute;
+    left: 0;
+    -webkit-transition: all 1s;
+}
+#hambtn{
+    display: block;
+    position: absolute;
+    z-index: 2;
+    background-color: rgba(0,0,0,0.5);
+    border:solid 1px rgba(255,255,255,0.5);
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    top: 10px;
+    left: 10px;
+}
+@media(min-width: 601px){
+    #hambtn{
+        display: none;
+    }
+}
+@media(max-width: 601px){
+    #controls{
+        z-index: 0;
+        left:-290px;
+    }
+    
+}
