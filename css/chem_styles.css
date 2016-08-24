@@ -1,0 +1,79 @@
+/* Chemistry CSS styles */
+
+* {
+    -webkit-user-select: none;
+}
+
+
+/**/
+
+body {
+    /*set margin to 0 and overflow to hidden,
+    to use the complete page */
+    margin: 0;
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: #333;
+}
+
+#output {
+   
+    cursor: -webkit-grab;
+}
+
+nav {
+    color: #E7E7E7;
+}
+
+nav select{
+    background-color: #333;
+    color: #E7E7E7;
+    padding: 5px;
+    font-weight: bold;
+    width: 100%;
+}
+
+nav .dropdown-menu .details{
+    padding-left: 15px;
+    width: 500px;
+}
+@media (max-width: 767px){
+    nav .dropdown-menu .details{
+        padding-left: 15px;
+        width: 100%;
+    }
+}
+
+nav .dropdown-menu {
+    background-color: #222;
+}
+
+
+nav .dropdown-menu a {
+    color: darkgray;
+}
+
+nav .dropdown-menu a:hover {
+    background-color: #111;
+    color: #E7E7E7;
+}
+
+.grab {
+    cursor: -webkit-grabbing !important;
+}
+
+.zoomin {
+    cursor: zoom-in !important;
+}
+
+.zoomout {
+    cursor: zoom-out !important;
+}
+
+.moving {
+    cursor: move !important;
+}
+
+.info {
+    cursor: help !important;
+}
