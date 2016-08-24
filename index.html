@@ -1,386 +1,102 @@
+<!--
+AUTHOR: Ryan Conklin
+DATE:   4/29/2016
+COURSE: CIT414
+DESCRIPTION: A project made to demonstrate the capabilities of WebGL through an interactive molecule exploration application.
+-->
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>WebGL</title>
-<script type="text/javascript" src="js/three/three.js"></script>
-<script type="text/javascript" src="js/jquery2.2.0.min.js"></script>
-<!-- Javascript code that runs our Three.js examples -->
-<script type="text/javascript">
-    var redirect = false;
-    if(redirect)
-        window.location.href = 'chem.html';
-    // once everything is loaded, we run our Three.js stuff.
-    var output;
-    var controlBox;
-    var debugKeys = false;
-    var plane,cube,sphere,scene,camera,renderer;
-    var keys = [];
-    var KEY_CODES = {
-        "CTRL":17,
-        "ALT":18,
-        "ARROW_LEFT":37,
-        "ARROW_UP":38,
-        "ARROW_RIGHT":39,
-        "ARROW_DOWN":40,
-        "KEY_A":65,
-        "KEY_R":82
-    }
-    var OBJECTS = {
-        "SPHERE":0,
-        "CUBE":1
-    }
-    $(function () {
-        output = $("#WebGL-output");
-        controlBox = $("#controls");
-        var updateLoop = setInterval(update,1);
-        // here we'll put the Three.js stuff
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        //camera.rotateOnAxis(new THREE.Vector3(1,0,0),(45*(Math.PI/180)));
-        renderer = new THREE.WebGLRenderer();
-        renderer.setClearColor(0x333333);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        var axes = new THREE.AxisHelper(5);
-        scene.add(axes);
-        var planeGeometry = new THREE.PlaneGeometry(60,20,1,1);
-        var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
-        plane = new THREE.Mesh(planeGeometry,planeMaterial);
-        plane.rotation.x=-0.5*Math.PI;
-        plane.position.x = 0;
-        plane.position.y = 0;
-        plane.position.z = 0;
-        scene.add(plane);
-        var cubeGeometry = new THREE.CubeGeometry(4,4,4);
-        var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
-        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        cube.position.x = 0;
-        cube.position.y = 10;
-        cube.position.z = 0;
-        scene.add(cube);
-        var sphereGeometry = new THREE.SphereGeometry(4,20,20);
-        var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
-        sphere = new THREE.Mesh(sphereGeometry,sphereMaterial);
-        sphere.position.x = 20;
-        sphere.position.y = 4;
-        sphere.position.z = 0;
-        scene.add(sphere);
-        camera.position.x = 11;
-        camera.position.y = 9;
-        camera.position.z = 30;
-        //camera.lookAt(scene.position);
-        displayCameraPosition(camera.position);
-        displayCameraRotation(camera.rotation);
-        output.append(renderer.domElement);
-        renderer.render(scene, camera);
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<meta name="description" content="">
+	<meta name="author" content="">
 
-        $(window).on('keydown',function(e){
-            var key = e.which;
-            if(debugKeys)console.log(key);
-            if($.inArray(key,keys) == -1) {
-
-                if (key == KEY_CODES.CTRL) {
-                    keys.push(KEY_CODES.CTRL);
-                }
-                if (key == KEY_CODES.ALT) {
-                    keys.push(KEY_CODES.ALT);
-                }
-                if (key == KEY_CODES.ARROW_LEFT) { //console.log("left");
-                    keys.push(KEY_CODES.ARROW_LEFT);
-                    camera.position.x--;
-                }
-                if (key == KEY_CODES.ARROW_UP) { //console.log("up");
-                    keys.push(KEY_CODES.ARROW_UP);
-                    camera.position.y++;
-                }
-                if (key == KEY_CODES.ARROW_RIGHT) { //console.log("right");
-                    camera.position.x++;
-                }
-                if (key == KEY_CODES.ARROW_DOWN) { //console.log("down");
-                    camera.position.y--;
-                }
-                if (key == KEY_CODES.KEY_A) {
-                    addSphere();
-                }
-                if(key == KEY_CODES.KEY_R){
-                    setAngles(0,0,0);
-                }
-            }
-            render();
-        });
-        $(window).on('keyup',function(e){
-            var key = e.which;
-            keys = jQuery.grep(keys, function(value) {
-                return value != key;
-            });
-
-        });
-
-        var held;
-        var startPos;
-        var lastPos;
-        $(output).mousedown(function(e) {
-            held = true;
-            output.addClass('grab');
-            lastPos = Array(e.offsetX, e.offsetY);
-        }).bind('mouseup mouseleave', function() {
-            held = false;
-            output.removeClass('grab');
-        });
-        $(output).on('mousemove',function(e){
-
-            if(held){
-                
-                //rotate
-                if(keys.indexOf(KEY_CODES.ALT) != -1){
-                    startPos = Array(e.offsetX, e.offsetY);
-                    var yAmt = (lastPos[0] - startPos[0]) / 500;
-                    var xAmt = (lastPos[1] - startPos[1]) / 500;
-                    camera.rotateY(yAmt);
-                    camera.rotateX(xAmt);
-                    lastPos = startPos;
-                    displayCameraRotation(camera.rotation);
-                }
-                else {//pan
-                    
-                    startPos = Array(e.offsetX, e.offsetY);
-                    var xPos = (lastPos[0] - startPos[0]) / 50;
-                    var yPos = (lastPos[1] - startPos[1]) / 50;
-                    camera.translateX(xPos);
-                    camera.translateY(-yPos)
-                    lastPos = startPos;
-                    displayCameraPosition(camera.position);
-                }
-                render();
-            }
-            else{
-                output.removeClass('grab');
-            }
-        });
-        var cursorTimeout;
-        $(output).on('mousewheel',function(e){
-            var scrollAmt = (e.originalEvent.wheelDelta/120)/5;
-            if(scrollAmt>0){
-                output.addClass('zoomin');
-                output.removeClass('zoomout');
-            }  
-            else{
-                    output.addClass('zoomout');
-                    output.removeClass('zoomin');
-            }
-            clearTimeout(cursorTimeout);
-            cursorTimeout = setTimeout(function(){output.removeClass('zoomin');output.removeClass('zoomout');},500);
-            camera.translateZ(-scrollAmt);
-            displayCameraPosition(camera.position);
-//			if(camera.zoom < 0) camera.zoom = 0;
-//				camera.updateProjectionMatrix();
-            render();
-        });
-        
-        $("#debugKeys").change(function(e){
-            debugKeys = e.originalEvent.srcElement.checked;
-        });
-        var controlsMove;
-        $(controlBox.find("h2")).mousedown(function(e){
-            controlsMove = true;
-            console.log("clicked");
-        }).bind('mouseup', function() {
-            controlsMove = false;
-        });
-        $(controlBox).on('mouseleave',function(){
-            controlsMove = false;
-        });
-        $(controlBox).on('mousemove',function(e){
-            if(controlsMove){
-                $(controlBox).css('left',e.clientX-150);
-                $(controlBox).css('top',e.clientY-50);
-            }
-        });
-        $("#btnMakeObj").click(function(){
-            var objID = $("#objSelection").val();
-            var objColor = $("#objColor").val();
-            var obj;
-            if(objID == OBJECTS.SPHERE){
-                var sphereGeometry = new THREE.SphereGeometry(Math.random()*10,Math.random()*20,Math.random()*20);
-                var sphereMaterial = new THREE.MeshBasicMaterial({color: objColor, wireframe: true});
-                obj = new THREE.Mesh(sphereGeometry,sphereMaterial);
-                obj.position.x = Math.random()*20;
-                obj.position.y = Math.random()*4;
-                obj.position.z = Math.random()*20;
-            }
-            else if(objID == OBJECTS.CUBE){
-                var cubeGeometry = new THREE.CubeGeometry(Math.random()*10,Math.random()*10,Math.random()*10);
-                var cubeMaterial = new THREE.MeshBasicMaterial({color: objColor, wireframe: true});
-                obj = new THREE.Mesh(cubeGeometry,cubeMaterial);
-                obj.position.x = Math.random()*20;
-                obj.position.y = Math.random()*4;
-                obj.position.z = Math.random()*20;
-            }
-            scene.add(obj);
-        });
-    });
-    //HELPER FUNCTIONS
-    function displayCameraRotation(cameraRotation){
-        $("#cameraRotX").html(Rads2Degs(cameraRotation.x));
-        $("#cameraRotY").html(Rads2Degs(cameraRotation.y));
-        $("#cameraRotZ").html(Rads2Degs(cameraRotation.z));
-    }
-    function displayCameraPosition(cameraPosition){
-        $("#cameraPosX").html(cameraPosition.x);
-        $("#cameraPosY").html(cameraPosition.y);
-        $("#cameraPosZ").html(cameraPosition.z);
-    }
-    function Rads2Degs(radians){
-        return (radians*180)/Math.PI;
-    }
-    function resetAngles(){
-        var x = +!$("#x0").is(':checked');
-        var y = +!$("#y0").is(':checked');
-        var z = +!$("#z0").is(':checked');
-        var r = camera.rotation;
-        camera.rotation.x = r.x*x;
-        camera.rotation.y = r.y*y;
-        camera.rotation.z = r.z*z;
-        displayCameraRotation(camera.rotation);
-        render();
-    }
-    function setAngles(x,y,z){
-        camera.rotation.x = 0;
-        camera.rotation.y = 0;
-        camera.rotation.z = 0;
-        displayCameraRotation(camera.rotation);
-        render();
-    }
-    function update(){
-        //render();
-        if(keys.indexOf(KEY_CODES.ALT) != -1){
-            output.addClass('moving');
-        }
-        else output.removeClass('moving');
-        spinObj(sphere,'y',-0.001);
-        //spinObj(cube,'y',0.001);
-    }
-    function render(){
-        renderer.render(scene,camera);
-    }
-    function addSphere(){
-        var sphere = new THREE.Mesh(new THREE.SphereGeometry(10,20,20),new THREE.MeshBasicMaterial({color: 0x00AA00, wireframe:true}));
-        sphere.position.x = 0;
-        sphere.position.y = 10;
-        sphere.position.z = 0;
-        //sphere.RotateX(0.5);
-        scene.add(sphere);
-    }
-    function spinObj(obj,axis,amt){
-        if(axis.toUpperCase()=='X')
-            obj.rotateX(amt);
-        else if(axis.toUpperCase()=='Y')
-            obj.rotateY(amt);
-        else if(axis.toUpperCase()=='Z'){
-            obj.rotateZ(amt);
-        }
-        render();
-    }    
-    </script>
-	<style>
-        *{
-            -webkit-user-select: none;
-        }
-		body{
-			/* set margin to 0 and overflow to hidden,
-			to use the complete page */
-			margin: 0;
-			overflow: hidden;
-            font-family: sans-serif;
-		}
-		#WebGL-output{
-            position: absolute;
-            z-index: 1;
-            cursor: -webkit-grab;
-		}
-        .grab{
-            cursor: -webkit-grabbing !important;
-        }
-        .zoomin{
-            cursor: zoom-in !important;
-        }
-        .zoomout{
-            cursor: zoom-out !important;
-        }
-        .moving{
-            cursor: move !important;
-        }
-        #controls{
-            position: absolute;
-            z-index: 2;
-            color: whitesmoke;
-            background-color: rgba(0,0,0,0.2);
-            margin: 15px;
-            padding: 15px;
-            padding-top: 0;
-            width: 240px;
-            text-align:  left;
-            cursor: default;
-        }
-        #controls h5{
-            margin: 0;
-        }
-        #controls h2{
-            margin: 0;
-            margin-top: 10px;
-            text-align: center;
-        }
-        #controls details summary{
-            cursor: pointer;
-        }
-	</style>
+	<title>WebGL</title>
+	<!-- Bootstrap core CSS -->
+	<link href="css/bootstrap.min.css" rel="stylesheet" />
+	<link href="css/chem_styles.css" rel="stylesheet" />
 </head>
 <body>
-<!-- canvas which will hold the Output -->
-<div id="WebGL-output">
-</div>
-<div id="controls"><h2>Info</h2>
-    <details><summary>Debugger</summary>
-    <fieldset>
-        <input id="debugKeys" type="checkbox" /><label for="debugKeys"> KEYS</label>
-        <br>
-        <label for="x0">x:</label><input id="x0" type="checkbox" /><label for="y0"> y:</label><input id="y0" type="checkbox" /><label for="z0"> z:</label><input id="z0" type="checkbox" /> <input type="button" value="reset" onClick="resetAngles();" />
-    </fieldset>
-    </details>
-    <details open><summary>Camera</summary>
-    <fieldset>
-        <h5>Postion</h5>
-        <label for="cameraPosX">X: </label><span id="cameraPosX"></span>
-        <br>
-        <label for="cameraPosY">Y: </label><span id="cameraPosY"></span>
-        <br>
-        <label for="cameraPosZ">Z: </label><span id="cameraPosZ"></span>
-        <h5>Rotation</h5>
-        <label for="cameraRotX">X: </label><span id="cameraRotX"></span>
-        <br>
-        <label for="cameraRotY">Y: </label><span id="cameraRotY"></span>
-        <br>
-        <label for="cameraRotZ">Z: </label><span id="cameraRotZ"></span>
-    </fieldset>
-    </details>
-    <details><summary>Create</summary>
-        <fieldset>
-            <select id="objSelection">
-                <option value="0">Sphere</option>
-                <option value="1">Cube</option>
-            </select>
-            <input id="objColor" type="color" />
-            <button id="btnMakeObj">Make</button>
-        </fieldset>
-    </details>
-    <details><summary>Controls</summary>
-        <fieldset>
-            <div><strong>A:</strong> add green sphere</div>
-            <div><strong>R:</strong> reset camera angles to 0</div>
-            <div><strong>ALT+click+hold+drag:</strong> rotate camera</div>
-            <div><strong>click+hold+drag:</strong> pan around scene</div>
-            <div><strong>mousewheel:</strong> zoom in and out</div>
-        </fieldset>
-    </details>
-</div>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			 <!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">WebGL Chem</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <!--        <li class="active"><a href="#">Link</a></li>-->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <div class="details">
+								<label for="moleculeMakeup">Composition: </label>
+                                    <span id="moleculeMakeup"></span>
+                                    <br>
+                                    <label for="atomDescription">Info:</label>
+                                    <div style="overflow-Y:scroll;height: 10em;padding: 0 20px;">
+                                        <p id="atomDescription"></p>
+                                        <a href="#" id="atomReadMoreLink" target="new">Read More...</a>
+                                    </div>  
+                                    <br>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-left">
+                        <select id="moleculeSelect"></select>
+                </form>
+                <ul class="nav navbar-nav navbar-right">
+                    <!--<li><a href="#">Link</a></li>-->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Options <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a><input id="autoRotate" type="checkbox" checked /> <label for="autoRotate">Auto-Rotate</label></a></li>
+                            <!--<li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>-->
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+    
+    <div id="output">Loading...</div>
+    <script type="text/javascript" src="js/jquery2.2.0.min.js"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="js/three/three.js"></script>
+    <!-- <script type="text/javascript" src="js/three/TrackballControls.js"></script> -->
+    <script type="text/javascript" src="js/threex/dynamictexture.js"></script>
+
+    <!-- Javascript code that runs our Three.js -->
+    <script type="text/javascript" src="js/main.min.js"></script>
+    <script>
+        $('li.dropdown').on({
+        "shown.bs.dropdown": function() { this.close = false; },
+        "click":             function() { this.close = true; },
+        "hide.bs.dropdown":  function() { return this.close; }
+        });
+    </script>
+
 </body>
+
 </html>
