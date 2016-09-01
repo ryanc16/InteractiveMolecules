@@ -378,7 +378,7 @@ var MOLECULES = {
                 "atom": ATOMS.OXYGEN,
                 "position": new THREE.Vector3(0, -15, 0),
                 "bonds": [[22, 2]]
-                    }, //23   
+                    }, //23
             ],
         "zoomLevel": 42
     },
@@ -984,6 +984,7 @@ $(function () {
             console.log(info);
             $("#atomDescription").html(info.description);
             $("#atomReadMoreLink").prop('href', info.link);
+            $("#detailDropdown").trigger('click.bs.dropdown');
         }
     });
     $("#debugKeys").change(function (e) {

@@ -39,7 +39,7 @@ DESCRIPTION: A project made to demonstrate the capabilities of WebGL through an 
                 <ul class="nav navbar-nav">
                     <!--        <li class="active"><a href="#">Link</a></li>-->
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<span class="caret"></span></a>
+                        <a href="#" id="detailDropdown" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Details<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li>
                                 <div class="details">
@@ -50,7 +50,7 @@ DESCRIPTION: A project made to demonstrate the capabilities of WebGL through an 
                                     <div style="overflow-Y:scroll;height: 10em;padding: 0 20px;">
                                         <p id="atomDescription"></p>
                                         <a href="#" id="atomReadMoreLink" target="new">Read More...</a>
-                                    </div>  
+                                    </div>
                                     <br>
                                 </div>
                             </li>
@@ -78,7 +78,7 @@ DESCRIPTION: A project made to demonstrate the capabilities of WebGL through an 
         </div>
         <!-- /.container-fluid -->
     </nav>
-    
+
     <div id="output">Loading...</div>
     <script type="text/javascript" src="js/jquery2.2.0.min.js"></script>
     <script src="js/bootstrap.min.js" type="text/javascript"></script>
