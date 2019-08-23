@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es6",
+    "outFile": "dist/app.bundle.js",
+    "rootDir": "src/ts"
+  },
+  "include": [
+    "src/ts/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
